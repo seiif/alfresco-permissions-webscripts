@@ -73,7 +73,7 @@
  * the state before the call was made
  * 
  * @author: Jared Ottley (jared.ottley@alfresco.com)
- * @version: 1.2
+ * @version: 1.3
  * 
  */
  
@@ -82,48 +82,6 @@ var permissions;
 var nodeRef = new Array();
 
 var error = false;
-
-// function
-
-/**
- * Rollback changes when a js exception is thrown
- * 
- * This will hopefully not be needed after 3.2.1 --
- * https://issues.alfresco.com/jira/browse/ALF-1958 js exceptions will trigger
- * rollbacks within the framework
- * 
- * @param i
- *            The current position of array
- * 
- */
-function rollback(i) {
-	
-	// remove the current corrupt permission set from working set
-	i -= 1
-						
-	// rollback comitted changes, walking the array backwards, from the point
-	// just before the bad permission set
-	for (i ; i >= 0 ; i--) {
-	
-		// Working set
-		var work = new Array();
-			
-		// Take the permission string and split it into its individual parts
-		work = String(permissions.get(i)).split(";");
-	
-		// Look up the action, perform the reverse of that action
-		switch (work[0]) {
-			case "ADD": case "add": case "Add":
-				node.removePermission(work[2], work[1]);
-				break;
-			case "REMOVE": case "remove": case "Remove":
-				node.setPermission(work[2], work[1]);
-				break;
-			default:
-				break;			
-		}
-	}
-}
 
 // Main
 
