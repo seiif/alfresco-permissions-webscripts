@@ -17,13 +17,13 @@
  * will result in a 400 error.
  * 
  * A JSON object contains the permissions that are being changed: <code>
- *  { permissions: [
+ *  { permissions: [ 
  *  	"REMOVE;user3;All", 
  *  	"REMOVE;user2;All",
- * 		"ADD;user4;Coordinator", 
+ * 		"ADD;user4;Coordinator",
  * 		"ADD;GROUP_usergroup1;Consumer" ] , 
- * "inherit": false 
- * }</code>
+ * 	"inherit": false 
+ * 	}</code>
  * 
  * [ADD|REMOVE];[USERNAME|GROUPNAME];PERMISSION
  * 
@@ -69,11 +69,11 @@
  * permission is given to user1 and user2 on this node. Permissions are not
  * inherited from the parent node.
  * 
- * This web script is transactional. Any returned errors will return the node to
+ * The web script is transactional. Any returned errors will return the node to
  * the state before the call was made
  * 
- * @author: Jared Ottley (jared.ottley@alfresco.com) 
- * @version: 1.1
+ * @author: Jared Ottley (jared.ottley@alfresco.com)
+ * @version: 1.2
  * 
  */
  
@@ -94,7 +94,7 @@ var error = false;
  * 
  * @param i
  *            The current position of array
- *            
+ * 
  */
 function rollback(i) {
 	
@@ -184,12 +184,12 @@ if (node == undefined) {
 				// Working set
 				var work = new Array();
 			
-				// Take the permission string and split it into its individual
-				// parts
+				// Take the permission string and split it into its individual 
+				//parts
 				work = String(permissions.get(i)).split(";");
 				
 				// Make sure the User and Group exist; SPECIAL CASE: the
-				// everyone group is never returned by getGroup so we need to
+				// everyone group is never returned by getGroup so we need to 
 				// make an exception
 				if (((people.getPerson(work[1]) != undefined || people.getGroup(work[1]) != undefined)) || work[1] == "GROUP_EVERYONE") {
 					
@@ -203,14 +203,14 @@ if (node == undefined) {
 							break;
 						default:
 							// if the action is unknown we need to get out of here
-							throw "UnknownAction";
+							throw { code:400, message: "Unsupported action: "+work[0]+". Only ADD or REMOVE are supported"};
 							break;			
 					}
 					
 				} else {
-					// if the user or the group do not exist we need to get out
+					// if the user or the group do not exist we need to get out 
 					// of here
-					throw "UnknownAuthority";
+					throw { code:400, message: "There is no Authority (user or group) with the name "+work[1] };
 				}
 			}
 			
@@ -224,25 +224,7 @@ if (node == undefined) {
 				model.permissions = node.getPermissions();
 				model.inherit = node.inheritsPermissions();
 		
-		} catch (e if e == "UnknownAction") {
-			// if the action was unknown; report it and rollback any changes we
-			// made
-			status.code = 400;
-			status.message = "Unsupported action: "+work[0]+". Only ADD or REMOVE are supported";
-			status.redirect = true;
-			
-			rollback(i);	
-				
-		} catch (e if e == "UnknownAuthority") {
-			// if the user/group was unknown; report it and rollback and changes
-			// we made
-			status.code = 400;
-			status.message = "There is no Authority (user or group) with the name "+work[1];
-			status.redirect = true;
-						
-			rollback(i);
-				
-		} catch (e) {
+		} catch (e if e.javaException instanceof java.lang.UnsupportedOperationException) {
 			// This case will catch permissions that are unknown. Rollback is
 			// handled by the framework
 			status.code = 400;
