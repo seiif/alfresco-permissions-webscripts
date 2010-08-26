@@ -1,0 +1,76 @@
+<webscript>
+    <shortname>Update Permissions</shortname>
+    <description><![CDATA[<p>Update the permissions for a given node</p>
+  
+  <p>@method POST</p>
+ 
+  <p>URL: /alfresco/service/permissions/{store_type}/{store_id}/{id}</p>
+ 
+  <p>store_type: The type of store you want to query, ex: workspace</p>
+ 
+  <p>store_id: The ID of the store you want to query, ex: SpacesStore</p>
+ 
+  <p>id: The UUID of the node, ex: aed218e8-df44-4865-84cd-0105252f4993</p>
+ 
+  <p>The above values joined together form the nodeRef</p>
+ 
+  <p>If the node is not found a 404 error will be returned.  Missing URI parameters will result in a 400 error.</p>
+  
+  <p>A JSON object contains the permissions that are being changed:</p>
+  
+ <p><code>
+  {
+      permissions: [
+          "REMOVE;user3;All",
+          "REMOVE;user2;All",
+          "ADD;user4;Coordinator",
+          "ADD;GROUP_usergroup1;Consumer"
+      	] ,
+    	"inherit": false
+	}
+	</code></p>
+ 
+  <p>[ADD|REMOVE];[USERNAME|GROUPNAME];PERMISSION</p>
+ 
+  <p>ADD | REMOVE:	Do you want to add or remove the permission for this user/group.  Any other value passed
+  will result in a 400 error.</p>
+ 
+   <p>USERNAME | GROUPNAME: The user or group you want the permission to be applied to or removed for.
+  Group names must be prefixed by GROUP_. Unknown User or Groups will result in a 400 error.</p>
+ 
+  <p>PERMISSION:  The supported permissions options are defined in 
+  org.alfresco.service.cmr.security.PermissionService or through custom extension to the permission 
+  model.  Unknown permissions will result in a 400 error.</p>
+ 
+  <p>It can also contain an optional inherit permission for specifying if the permissions to this node
+  should be inherited from a parent node.  Without the inherit option, the current value for that 
+  node is maintained.  Inherited permissions can not be removed from a node that inherits the permission.</p>
+ 
+  <p>@returns JSON object: <code>
+  { "permissions": [
+          "ALLOWED;user1;Coordinator",
+          "ALLOWED;user2;Coordinator"
+      	] ,
+    	"inherit": false
+    }
+  </code></p>
+ 
+  <p>The return object lists the permissions for a specific node:  The permissions follow the format:</p>
+ 
+  <p>[ALLOWED|DENIED];[USERNAME|GROUPNAME];PERMISSION</p>
+ 
+  <p>Permissions are defined in org.alfresco.service.cmr.security.PermissionService or through custom
+  extension to the permission model.</p>
+ 
+  <p>It will also return a boolean value indicating if some permissions are inherited from a parent node.</p>
+ 
+  <p>The above example shows two permissions assigned to the node:  the Coordinator permission is
+  given to user1 and user2 on this node.  Permissions are not inherited from the parent node.</p>
+  
+    <p>This web script is transactional.  Any returned errors will return the node to the state before the call was made </p>]]>
+</description>
+    <url>/permissions/{store_type}/{store_id}/{id}</url>
+    <format default="json"/>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>
